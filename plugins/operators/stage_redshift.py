@@ -37,7 +37,7 @@ class StageToRedshiftOperator(BaseOperator):
                  destination_table="",
                  input_file_type="",
                  delimiter=',',
-                 ignore_eaders=1,
+                 ignore_headers=1,
                  *args, **kwargs):
 
         super(StageToRedshiftOperator, self).__init__(*args, **kwargs)
