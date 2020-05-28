@@ -29,3 +29,4 @@ class LoadDimensionOperator(BaseOperator):
         #self.log.info('LoadDimensionOperator not implemented yet')
         redshift_hook = PostgresHook(postgres_conn_id=self.redshift_conn_id)
         redshift_hook.run(self.sql)
+        self.log.info()

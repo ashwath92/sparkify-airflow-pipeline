@@ -14,13 +14,13 @@ from helpers import SqlQueries
 default_args = {
     'owner': 'ashwath',
     'depends_on_past': False,
-    'start_date': days_ago(2),
+    'start_date': datetime(2018, 11, 1),
     'email': ['ashwath92@gmail.com'],
     'email_on_failure': True,
     'email_on_retry': False,
-    'retries': 3,
-    'retry_delay': timedelta(minutes=5),
-    'catchup': False
+    #'retries': 3,
+    #'retry_delay': timedelta(minutes=5),
+    #'catchup': False
     # 'queue': 'bash_queue',
     # 'pool': 'backfill',
     # 'priority_weight': 10,
@@ -44,10 +44,10 @@ default_args = {
 dag = DAG('sparkify_elt_dag',
           default_args=default_args,
           description='Load and transform data in Redshift with Airflow',
-          schedule_interval='0 * * * *'
+          #schedule_interval='0 * * * *'
         )
 
-start_operator = DummyOperator(task_id='Begin_execution',  dag=dag)
+#start_operator = DummyOperator(task_id='Begin_execution',  dag=dag)
 
 create_tables_task = PostgresOperator(
     task_id='create_tables',
@@ -56,7 +56,7 @@ create_tables_task = PostgresOperator(
     sql='create_tables.sql',
     postgres_conn_id='redshift'
 )
-
+'''
 stage_events_to_redshift = StageToRedshiftOperator(
     task_id='Stage_events',
     dag=dag,
@@ -97,7 +97,7 @@ load_user_dimension_table = LoadDimensionOperator(
     dag=dag,
     redshift_conn_id='redshift',
     aws_credentials_id='aws_credentials',
-    destination_table='users'
+    destination_table='users',
     sql=SqlQueries.user_table_insert
 )
 
@@ -106,7 +106,7 @@ load_song_dimension_table = LoadDimensionOperator(
     dag=dag,
     redshift_conn_id='redshift',
     aws_credentials_id='aws_credentials',
-    destination_table='songs'
+    destination_table='songs',
     sql=SqlQueries.song_table_insert
 )
 
@@ -115,7 +115,7 @@ load_artist_dimension_table = LoadDimensionOperator(
     dag=dag,
     redshift_conn_id='redshift',
     aws_credentials_id='aws_credentials',
-    destination_table='artists'
+    destination_table='artists',
     sql=SqlQueries.artist_table_insert
 )
 
@@ -124,7 +124,7 @@ load_time_dimension_table = LoadDimensionOperator(
     dag=dag,
     redshift_conn_id='redshift',
     aws_credentials_id='aws_credentials',
-    destination_table='time'
+    destination_table='time',
     sql=SqlQueries.time_table_insert
 )
 
@@ -134,6 +134,9 @@ run_quality_checks = DataQualityOperator(
 )
 
 end_operator = DummyOperator(task_id='Stop_execution',  dag=dag)
-
-start_operator >> create_tables_task
-create_tables_task >> [stage_events_to_redshift, stage_songs_to_redshift]
+#start_operator >> create_tables_task 
+create_tables_task >> [stage_events_to_redshift, stage_songs_to_redshift] >> load_songplays_table
+load_songplays_table >> [load_artist_dimension_table, load_song_dimension_table, load_user_dimension_table, load_time_dimension_table] >> run_quality_checks
+#[load_artist_dimension_table, load_song_dimension_table, load_user_dimension_table, load_time_dimension_table] >> run_quality_checks
+run_quality_checks >> end_operator
+'''
