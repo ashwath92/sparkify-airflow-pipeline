@@ -51,6 +51,10 @@ class StageToRedshiftOperator(BaseOperator):
         self.region = region
         self.destination_table = destination_table
         self.input_file_type = input_file_type
+<<<<<<< HEAD
+=======
+        #self.execution_date = kwargs.get('execution_date')
+>>>>>>> 120fb60d695417730695b2a60c34822a81db008c
         
     def execute(self, context):
         #self.log.info('StageToRedshiftOperator not implemented yet')
@@ -65,6 +69,14 @@ class StageToRedshiftOperator(BaseOperator):
         if self.s3_key == 'song_data':
             s3_path = "s3://{bucket}/{key}".format(bucket=self.s3_bucket, key=self.s3_key)
         else:
+<<<<<<< HEAD
+=======
+            #edate = "{execution_date}" 
+            #eyear = edate.strftime("%Y")
+            #emonth = edate.strftime("%m")
+            #eday = edate.strftime("%d")
+            #s3_path = "s3://{bucket}/{key} /{year}/{month}".format(bucket=self.s3_bucket, key=self.s3_key, year=eyear, month=emonth)
+>>>>>>> 120fb60d695417730695b2a60c34822a81db008c
             s3_key = '{key}/{{execution_date.year}}/{{execution_date.month}}/{{ds}}-events.json'.format(key=self.s3_key)
             s3_path = "s3://{bucket}/{key}".format(bucket=self.s3_bucket, key=self.s3_key)
         if self.input_file_type == 'csv':
