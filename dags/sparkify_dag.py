@@ -15,6 +15,7 @@ default_args = {
     'owner': 'ashwath',
     'depends_on_past': False,
     'start_date': datetime(2018, 11, 1),
+    'end_date': datetime(2018, 11, 3),
     'email': ['ashwath92@gmail.com'],
     'email_on_failure': False,
     'email_on_retry': False,
@@ -43,8 +44,8 @@ default_args = {
 # hourly: cron is '0 * * * *': https://airflow.apache.org/docs/stable/scheduler.html
 dag = DAG('sparkify_elt_dag',
           default_args=default_args,
-          description='Load and transform data in Redshift with Airflow',
-          schedule_interval='0 * * * *'
+          description='Load and transform data in Redshift with Airflow'#,
+          #schedule_interval='0 * * * *'
         )
 
 start_operator = DummyOperator(task_id='Begin_execution',  dag=dag)
@@ -90,3 +91,7 @@ run_quality_checks = DataQualityOperator(
 )
 
 end_operator = DummyOperator(task_id='Stop_execution',  dag=dag)
+
+start_operator >> [stage_events_to_redshift, stage_songs_to_redshift] >> load_songplays_table
+load_songplays_table >> [load_artist_dimension_table, load_song_dimension_table, load_user_dimension_table, load_time_dimension_table] >> run_quality_checks
+run_quality_checks >> end_operator
