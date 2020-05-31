@@ -44,7 +44,8 @@ default_args = {
 # hourly: cron is '0 * * * *': https://airflow.apache.org/docs/stable/scheduler.html
 dag = DAG('sparkify_elt_dag',
           default_args=default_args,
-          description='Load and transform data in Redshift with Airflow'#,
+          description='Load and transform data in Redshift with Airflow',
+          schedule_interval=timedelta(days=1)
           #schedule_interval='0 * * * *'
         )
 
@@ -60,12 +61,28 @@ create_tables_task = PostgresOperator(
 
 stage_events_to_redshift = StageToRedshiftOperator(
     task_id='Stage_events',
-    dag=dag
+    dag=dag,
+    redshift_conn_id='redshift',
+    aws_credentials_id='aws_credentials',
+    s3_bucket='udacity-dend',
+    s3_key='log_data',
+    region='us-west-2',
+    destination_table='staging_events',
+    input_file_type='json',
+    provide_context=True
 )
 
 stage_songs_to_redshift = StageToRedshiftOperator(
     task_id='Stage_songs',
-    dag=dag
+    dag=dag,
+    redshift_conn_id='redshift',
+    aws_credentials_id='aws_credentials',
+    s3_bucket='udacity-dend',
+    s3_key='song_data',
+    region='us-west-2',
+    destination_table='staging_songs',
+    input_file_type='json',
+    provide_context=True
 )
 
 load_songplays_table = LoadFactOperator(
