@@ -12,7 +12,7 @@ class StageToRedshiftOperator(BaseOperator):
         ACCESS_KEY_ID '{}'
         SECRET_ACCESS_KEY '{}'
         REGION '{}'
-        JSON 'auto'
+        JSON '{}'
     """
     copy_sql_csv = """
         COPY {}
@@ -76,9 +76,15 @@ class StageToRedshiftOperator(BaseOperator):
                                                                    self.delimiter,
                                                                    self.ignore_headers)
         else: # json (default)
+            if self.s3_key == 'log_data':
+                jsonpath = 's3://{}/log_json_path.json'.format(self.s3_bucket)
+            else:
+                jsonpath = 'auto'
             copy_sql = StageToRedshiftOperator.copy_sql_json.format(self.destination_table,
                                                                     s3_path,
                                                                     credentials.access_key,
                                                                     credentials.secret_key,
-                                                                    self.region)
+                                                                    self.region,
+                                                                    jsonpath
+                                                                   )
         redshift_hook.run(copy_sql)
