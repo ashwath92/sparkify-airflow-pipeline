@@ -69,7 +69,10 @@ stage_events_to_redshift = StageToRedshiftOperator(
     region='us-west-2',
     destination_table='staging_events',
     input_file_type='json',
-    provide_context=True
+    start_date=datetime(2018, 11, 1),
+    provide_context=True,
+    max_active_runs=1
+    
 )
 
 stage_songs_to_redshift = StageToRedshiftOperator(
@@ -82,12 +85,18 @@ stage_songs_to_redshift = StageToRedshiftOperator(
     region='us-west-2',
     destination_table='staging_songs',
     input_file_type='json',
-    provide_context=True
+    start_date=datetime(2018, 11, 1),
+    provide_context=True,
+    max_active_runs=1
 )
 
 load_songplays_table = LoadFactOperator(
     task_id='Load_songplays_fact_table',
-    dag=dag
+    dag=dag,
+    redshift_conn_id='redshift',
+    sql=SqlQueries.songplay_table_insert,
+    provide_context=True,
+    max_active_runs=1
 )
 
 load_user_dimension_table = LoadDimensionOperator(
