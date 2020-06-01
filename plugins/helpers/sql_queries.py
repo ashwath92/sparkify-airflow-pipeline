@@ -1,19 +1,18 @@
 class SqlQueries:
     songplay_table_insert = ("""
         INSERT INTO songplays (
-            songplay_id,
+            playid,
             start_time,
             userid,
             level,
-            song_id,
-            artist_id,
+            songid,
+            artistid,
             sessionid,
             location,
-            useragent,
-            start_time
+            user_agent
         )
         SELECT
-                md5(events.sessionid || events.start_time) songplay_id,
+                md5(events.sessionid || events.start_time) AS playid,
                 events.start_time, 
                 events.userid, 
                 events.level, 
