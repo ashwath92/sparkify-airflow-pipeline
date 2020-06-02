@@ -1,7 +1,6 @@
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
-from airflow.helpers import SqlQueries
 
 class LoadFactOperator(BaseOperator):
 
@@ -13,7 +12,6 @@ class LoadFactOperator(BaseOperator):
                  # Example:
                  # conn_id = your-connection-name
                  redshift_conn_id="",
-                 aws_credentials_id="",
                  sql="",
                  *args, **kwargs):
 
@@ -22,7 +20,6 @@ class LoadFactOperator(BaseOperator):
         # Example:
         # self.conn_id = conn_id
         self.redshift_conn_id = redshift_conn_id
-        self.aws_credentials_id = aws_credentials_id
         self.sql=sql
 
     def execute(self, context):

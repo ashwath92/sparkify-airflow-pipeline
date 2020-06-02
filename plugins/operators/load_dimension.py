@@ -22,11 +22,9 @@ class LoadDimensionOperator(BaseOperator):
         # Example:
         # self.conn_id = conn_id
         self.redshift_conn_id = redshift_conn_id
-        self.aws_credentials_id = aws_credentials_id
         self.sql=sql
 
     def execute(self, context):
         #self.log.info('LoadDimensionOperator not implemented yet')
         redshift_hook = PostgresHook(postgres_conn_id=self.redshift_conn_id)
         redshift_hook.run(self.sql)
-        self.log.info()

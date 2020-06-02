@@ -12,7 +12,7 @@ class StageToRedshiftOperator(BaseOperator):
         ACCESS_KEY_ID '{}'
         SECRET_ACCESS_KEY '{}'
         REGION '{}'
-        JSON 'auto'
+        JSON '{}'
     """
     copy_sql_csv = """
         COPY {}
@@ -61,9 +61,14 @@ class StageToRedshiftOperator(BaseOperator):
         redshift_hook.run(f"DELETE FROM {self.destination_table}")
         self.log.info("Copying data from S3 to Redshift")
         # http://s3-us-west-2.amazonaws.com/udacity-dend/log-data/2018/11/2018-11-04-events.json
-        s3_path = f"s3://{self.s3_bucket}/{self.s3_key}/{{ execution_date.strftime('%Y') }}/{{ execution_date.strftime('%m') }}/{{ ds }}-events.json"
+        #s3_path = f"s3://{self.s3_bucket}/{self.s3_key}/{ execution_date.strftime('%Y')}/{{ execution_date.strftime('%m') }}/{{ ds }}-events.json"
+        if self.s3_key == 'song_data':
+            s3_path = "s3://{bucket}/{key}".format(bucket=self.s3_bucket, key=self.s3_key)
+        else:
+            s3_key = '{key}/{{execution_date.year}}/{{execution_date.month}}/{{ds}}-events.json'.format(key=self.s3_key)
+            s3_path = "s3://{bucket}/{key}".format(bucket=self.s3_bucket, key=self.s3_key)
         if self.input_file_type == 'csv':
-            copy_sql = StageToRedshiftOperator.copy_sql_csv.format(self.table,
+            copy_sql = StageToRedshiftOperator.copy_sql_csv.format(self.destination_table,
                                                                    s3_path,
                                                                    credentials.access_key,
                                                                    credentials.secret_key,
@@ -71,9 +76,15 @@ class StageToRedshiftOperator(BaseOperator):
                                                                    self.delimiter,
                                                                    self.ignore_headers)
         else: # json (default)
-            copy_sql = StageToRedshiftOperator.copy_sql_json.format(self.table,
+            if self.s3_key == 'log_data':
+                jsonpath = 's3://{}/log_json_path.json'.format(self.s3_bucket)
+            else:
+                jsonpath = 'auto'
+            copy_sql = StageToRedshiftOperator.copy_sql_json.format(self.destination_table,
                                                                     s3_path,
                                                                     credentials.access_key,
                                                                     credentials.secret_key,
-                                                                    self.region)
+                                                                    self.region,
+                                                                    jsonpath
+                                                                   )
         redshift_hook.run(copy_sql)
