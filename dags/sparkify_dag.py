@@ -45,7 +45,8 @@ default_args = {
 dag = DAG('sparkify_elt_dag',
           default_args=default_args,
           description='Load and transform data in Redshift with Airflow',
-          schedule_interval=timedelta(days=1)
+          schedule_interval=timedelta(days=1),
+          max_active_runs=1
           #schedule_interval='0 * * * *'
         )
 
@@ -70,8 +71,7 @@ stage_events_to_redshift = StageToRedshiftOperator(
     destination_table='staging_events',
     input_file_type='json',
     start_date=datetime(2018, 11, 1),
-    provide_context=True,
-    max_active_runs=1
+    provide_context=True
     
 )
 
@@ -86,8 +86,7 @@ stage_songs_to_redshift = StageToRedshiftOperator(
     destination_table='staging_songs',
     input_file_type='json',
     start_date=datetime(2018, 11, 1),
-    provide_context=True,
-    max_active_runs=1
+    provide_context=True
 )
 
 load_songplays_table = LoadFactOperator(
@@ -101,22 +100,37 @@ load_songplays_table = LoadFactOperator(
 
 load_user_dimension_table = LoadDimensionOperator(
     task_id='Load_user_dim_table',
-    dag=dag
+    dag=dag,
+    redshift_conn_id='redshift',
+    destination_table='users',
+    sql=SqlQueries.user_table_insert,
+    max_active_runs=1
 )
 
 load_song_dimension_table = LoadDimensionOperator(
     task_id='Load_song_dim_table',
-    dag=dag
+    dag=dag,
+    redshift_conn_id='redshift',
+    destination_table='songs',
+    sql=SqlQueries.song_table_insert,
+    max_active_runs=1
 )
 
 load_artist_dimension_table = LoadDimensionOperator(
     task_id='Load_artist_dim_table',
-    dag=dag
+    dag=dag,
+    redshift_conn_id='redshift',
+    destination_table='artists',
+    sql=SqlQueries.artist_table_insert,
+    max_active_runs=1
 )
 
 load_time_dimension_table = LoadDimensionOperator(
     task_id='Load_time_dim_table',
-    dag=dag
+    dag=dag,
+    redshift_conn_id='redshift',
+    destination_table='time',
+    sql=SqlQueries.time_table_insert,
 )
 
 run_quality_checks = DataQualityOperator(
