@@ -41,10 +41,10 @@ default_args = {
 dag = DAG('sparkify_elt_dag',
           default_args=default_args,
           description='Load and transform data in Redshift with Airflow',
-          schedule_interval=timedelta(days=1),
           max_active_runs=1,
           # https://airflow.apache.org/docs/stable/scheduler.html
           schedule_interval='0 0 * * *'
+          #schedule_interval=timedelta(days=1),
           #schedule_interval='0 * * * *'
         )
 
