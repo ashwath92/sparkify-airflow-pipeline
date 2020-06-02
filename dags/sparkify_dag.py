@@ -15,13 +15,13 @@ default_args = {
     'owner': 'ashwath',
     'depends_on_past': False,
     'start_date': datetime(2018, 11, 1),
-    'end_date': datetime(2018, 11, 3),
+    'end_date': datetime(2018, 11, 30),
     'email': ['ashwath92@gmail.com'],
-    'email_on_failure': False,
+    'email_on_failure': True,
     'email_on_retry': False,
-    #'retries': 3,
-    #'retry_delay': timedelta(minutes=5),
-    #'catchup': False
+    'retries': 3,
+    'retry_delay': timedelta(minutes=5),
+    'catchup': False
     # 'queue': 'bash_queue',
     # 'pool': 'backfill',
     # 'priority_weight': 10,
@@ -36,17 +36,15 @@ default_args = {
     # 'sla_miss_callback': yet_another_function,
     # 'trigger_rule': 'all_success'
 }
-#default_args = {
-#    'owner': 'udacity',
-#    'start_date': datetime(2019, 1, 12),
-#}
 
 # hourly: cron is '0 * * * *': https://airflow.apache.org/docs/stable/scheduler.html
 dag = DAG('sparkify_elt_dag',
           default_args=default_args,
           description='Load and transform data in Redshift with Airflow',
           schedule_interval=timedelta(days=1),
-          max_active_runs=1
+          max_active_runs=1,
+          # https://airflow.apache.org/docs/stable/scheduler.html
+          schedule_interval='0 0 * * *'
           #schedule_interval='0 * * * *'
         )
 
